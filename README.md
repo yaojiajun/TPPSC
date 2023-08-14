@@ -9,7 +9,7 @@ Graph Transformer based model for learning to solve the Two-sided Online Task Pl
 * tqdm
 * tensorboard_logger
 
-## How to use the code:
+## How to use the code
 Training:
     To start training run the run.py file. The options.py can be used for different environement settings such as number of tasks, number of workers and other parameters.
     The trained models for each epoch will be stored in a directory named 'outputs'
