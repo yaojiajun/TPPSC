@@ -2,12 +2,12 @@
 Graph Transformer based model for learning to solve the Two-sided Online Task Planning in Spatial Crowdsourcing (TOTP) with max-sum objective. Training with REINFORCE with greedy rollout baseline.
 
 ##  Dependencies
-Python>=3.8
-NumPy
-SciPy
-PyTorch>=1.7
-tqdm
-tensorboard_logger
+* Python>=3.8
+* NumPy
+* SciPy
+* PyTorch>=1.7
+* tqdm
+* tensorboard_logger
 
 ## How to use the code:
 Training:
@@ -25,7 +25,7 @@ Test data generation:
 If you have any questions or concerns, please raise an issue or email: 201810102795@mail.scut.edu.cn
 
 This repository includes adaptions of the following repositories as baselines:
-https://github.com/wouterkool/attention-learn-to-route
-https://github.com/Demon0312/HCVRP_DRL
-https://github.com/adamslab-ub/CapAM-MRTA
-https://github.com/BUAA-BDA/SpatialCrowdsourcing-GOMA#usage-of-the-algorithms
+* https://github.com/wouterkool/attention-learn-to-route
+* https://github.com/Demon0312/HCVRP_DRL
+* https://github.com/adamslab-ub/CapAM-MRTA
+* https://github.com/BUAA-BDA/SpatialCrowdsourcing-GOMA#usage-of-the-algorithms
