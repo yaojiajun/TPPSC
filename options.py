@@ -21,9 +21,8 @@ def get_options(args=None):
                         help='Dataset file to use for dependency')
     parser.add_argument('--depend_des_dataset', type=str, default="data/sc/tasks_depend_des_sc.pkl",
                         help='Dataset file to use for dependency')
-
     parser.add_argument('--obj', default='max-sum')
-
+    
     # Model
     parser.add_argument('--model', default='attention', help="Model, 'attention' (default) or 'pointer'")
     parser.add_argument('--embedding_dim', type=int, default=128, help='Dimension of input embedding')
