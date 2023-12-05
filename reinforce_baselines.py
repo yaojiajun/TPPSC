@@ -226,7 +226,7 @@ class RolloutBaseline(Baseline):
         # We make it such that it works whether model was saved as data parallel or not
         load_model = copy.deepcopy(self.model)
         get_inner_model(load_model).load_state_dict(get_inner_model(state_dict['model']).state_dict())
-        self._update_model(load_model, state_dict['epoch'], state_dict['dataset'])
+        self._update_model(load_model, state_dict['epoch'], state_dict['dataset']) 
 
 
 class BaselineDataset(Dataset):
