@@ -3,17 +3,12 @@
 This repository contains code for implementing a Transformer-based reinforcement learning framework for learning to solve task planning (TOTP) in spatial crowdsourcing with bilateral preferences. Training with REINFORCE with greedy rollout baseline. Environment: The TPPSC environment can be initialized using the TPPSC class in problems/tppsc/problem_tppsc.py. All state space variables and functions required to update the state space are implemented using the StateTPPSC class in problems/tppsc/state_tppsc.py. training.py implements the REINFORCE algorithm.
 
 ##  Dependencies
-Python>=3.8
-
-NumPy
-
-SciPy
-
-PyTorch>=1.7
-
-tqdm
-
-tensorboard_logger
+Python>=3.8  
+NumPy  
+SciPy  
+PyTorch>=1.7  
+tqdm  
+tensorboard_logger  
 
 ## How to use the code:
 **Training**:
