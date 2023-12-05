@@ -1,5 +1,5 @@
-#  Task Planning in Spatial Crowdsourcing with Transformer based Reinforcement Learning
-Graph Transformer based model for learning to solve the Two-sided Online Task Planning in Spatial Crowdsourcing (TOTP) with max-sum objective. Training with REINFORCE with greedy rollout baseline.
+#  Task Planning in Preference-aware Spatial Crowdsourcing with Transformer based Reinforcement Learning
+A Transformer-based reinforcement learning framework for learning to solve task planning (TOTP) in spatial crowdsourcing with bilateral preferences. Training with REINFORCE with greedy rollout baseline.
 
 ##  Dependencies
 Python>=3.8
