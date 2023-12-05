@@ -1,4 +1,4 @@
-#  Two-sided Online Task Planning in Spatial Crowdsourcing with Graph Transformer based Reinforcement Learning
+#  Task Planning in Spatial Crowdsourcing with Transformer based Reinforcement Learning
 Graph Transformer based model for learning to solve the Two-sided Online Task Planning in Spatial Crowdsourcing (TOTP) with max-sum objective. Training with REINFORCE with greedy rollout baseline.
 
 ##  Dependencies
