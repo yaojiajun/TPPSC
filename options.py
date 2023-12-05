@@ -10,10 +10,10 @@ def get_options(args=None):
 
     # Data
     parser.add_argument('--problem', default='tppsc', help="The problem to solve")
-    parser.add_argument('--tasks_size', type=int, default=5, help="The size of the problem graph")
+    parser.add_argument('--tasks_size', type=int, default=50, help="The size of the problem graph")
     parser.add_argument('--workers_size', type=int, default=5, help="The size of the problem graph")
-    parser.add_argument('--batch_size', type=int, default=5, help='Number of instances per batch during training')
-    parser.add_argument('--epoch_size', type=int, default=5, help='Number of instances per epoch during training')
+    parser.add_argument('--batch_size', type=int, default=512, help='Number of instances per batch during training')
+    parser.add_argument('--epoch_size', type=int, default=512000, help='Number of instances per epoch during training')
     parser.add_argument('--val_size', type=int, default=10,
                         help='Number of instances used for reporting validation performance')
     parser.add_argument('--val_dataset', type=str, default=None, help='Dataset file to use for validation')
