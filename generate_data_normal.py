@@ -15,7 +15,7 @@ def truncated_normal(graph_size, sigma):
     return torch.stack([torch.from_numpy(X.rvs(graph_size)), torch.from_numpy(X.rvs(graph_size))], 1)
 
 def generate_mrta_data(size_t, size_w,num_samples):
-    max_n_worker = size_w
+    max_n_agent = size_w
     data1 = []
     data2 = []
     data3 = []
@@ -32,12 +32,13 @@ def generate_mrta_data(size_t, size_w,num_samples):
         t_loc2=truncated_normal(size_t, 0.6)
         t_loc3=truncated_normal(size_t, 0.8)
         t_loc4=truncated_normal(size_t, 1)
-
-        t_starttime = (torch.randint(1, int(size_w)+1, (size_t, 1)).to(torch.float))
+        if size_w >= 10:
+            t_starttime = (torch.randint(1, int(size_w / 2) + 1, (size_t, 1)).to(torch.float))
+        else:
+            t_starttime = (torch.randint(1, int(size_w)+1, (size_t, 1)).to(torch.float))
         sorted, indices = torch.sort(t_starttime, 0)
         t_starttime = sorted
         t_deadline = t_starttime + period
-
         init_pay = torch.randint(10, 30, (size_t, 1)).to(torch.float).squeeze(-1)
         pay = []
         for i in range(period):
@@ -62,16 +63,18 @@ def generate_mrta_data(size_t, size_w,num_samples):
         prev_p.shape
         pay = prev_p.unsqueeze(-1)
 
-        w_loc = torch.FloatTensor(max_n_worker, 2).uniform_(0, 1)
-        w_capacity = torch.randint(1, 21, (max_n_worker, 1), dtype=torch.float,
+        w_loc = torch.FloatTensor(max_n_agent, 2).uniform_(0, 1)
+        w_capacity = torch.randint(1, 21, (max_n_agent, 1), dtype=torch.float,
                                         device=w_loc.device).view(-1)
-        w_speed = ((torch.randint(2, 6, (max_n_worker, 1)).to(torch.float)) / 10)
-        w_riato = (torch.randint(1, 100, (max_n_worker, 1)).to(torch.float) / 100)
-
-        w_starttime = (torch.randint(1, int(size_w)+1, (max_n_worker, 1)).to(torch.float))
-        sorted, indices = torch.sort(w_starttime, 0)
-        w_starttime = sorted
-        w_deadline = w_starttime + 6
+        w_speed = ((torch.randint(2, 6, (max_n_agent, 1)).to(torch.float)) / 10)
+        w_riato = (torch.randint(1, 100, (max_n_agent, 1)).to(torch.float) / 100)
+        if size_w >= 10:
+            agents_starttime = (torch.randint(1, int(size_w/2)+1, (max_n_agent, 1)).to(torch.float))
+        else:
+            agents_starttime = (torch.randint(1, int(size_w)+1, (max_n_agent, 1)).to(torch.float))
+        sorted, indices = torch.sort(agents_starttime, 0)
+        agents_starttime = sorted
+        agents_deadline = agents_starttime + 6
 
 
         case_info1 = {
@@ -83,8 +86,8 @@ def generate_mrta_data(size_t, size_w,num_samples):
             't_pay': pay,
             'w_loc': w_loc,
             'w_capacity': w_capacity,
-            'w_start': w_starttime,
-            'w_deadline': w_deadline,
+            'w_start': agents_starttime,
+            'w_deadline': agents_deadline,
             'w_speed': w_speed,
             'w_riato': w_riato
         }
@@ -98,8 +101,8 @@ def generate_mrta_data(size_t, size_w,num_samples):
             't_pay': pay,
             'w_loc': w_loc,
             'w_capacity': w_capacity,
-            'w_start': w_starttime,
-            'w_deadline': w_deadline,
+            'w_start': agents_starttime,
+            'w_deadline': agents_deadline,
             'w_speed': w_speed,
             'w_riato': w_riato
         }
@@ -113,8 +116,8 @@ def generate_mrta_data(size_t, size_w,num_samples):
             't_pay': pay,
             'w_loc': w_loc,
             'w_capacity': w_capacity,
-            'w_start': w_starttime,
-            'w_deadline': w_deadline,
+            'w_start': agents_starttime,
+            'w_deadline': agents_deadline,
             'w_speed': w_speed,
             'w_riato': w_riato
         }
@@ -128,8 +131,8 @@ def generate_mrta_data(size_t, size_w,num_samples):
             't_pay': pay,
             'w_loc': w_loc,
             'w_capacity': w_capacity,
-            'w_start': w_starttime,
-            'w_deadline': w_deadline,
+            'w_start': agents_starttime,
+            'w_deadline': agents_deadline,
             'w_speed': w_speed,
             'w_riato': w_riato
         }
@@ -174,7 +177,7 @@ def generate_mrta_data(size_t, size_w,num_samples):
 
         w_loc1=w_loc[:,0]
         w_loc2 = w_loc[:, 1]
-        df1 = pd.DataFrame({'begin_time': w_starttime.flatten(), 'loc1': w_loc1.flatten(),'loc2': w_loc2.flatten(),
+        df1 = pd.DataFrame({'begin_time': agents_starttime.flatten(), 'loc1': w_loc1.flatten(),'loc2': w_loc2.flatten(),
                            'dis': init_dis.flatten(), 'capacity': w_capacity.flatten(), 'speed': w_speed.flatten(),
                             'duration': init_duration_w.flatten(), 'riato': w_riato.flatten() })
         file_path2 = 'worker_data.xlsx'
@@ -202,7 +205,7 @@ if __name__ == "__main__":
     parser.add_argument('--tasks_size', type=int, default=50, help="The size of the problem graph")
     parser.add_argument('--workers_size', type=int, default=5, help="The size of the problem graph")
     parser.add_argument("--name", type=str, default='mrta', help="Name to identify dataset")
-    parser.add_argument("--problem", type=str, default='totp',
+    parser.add_argument("--problem", type=str, default='mrta',
                         help="Problem, 'tsp', 'vrp', 'pctsp' or 'op_const', 'op_unif' or 'op_dist'"
                              " or 'all' to generate all")
     parser.add_argument('--data_distribution', type=str, default='all',

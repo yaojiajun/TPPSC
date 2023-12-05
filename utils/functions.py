@@ -104,8 +104,6 @@ def load_model(path, obj, epoch=None):
         args['hidden_dim'],
         obj,
         problem,
-        tasks_size=args['tasks_size'],
-        workers_size=args['workers_size'],
         n_encode_layers=args['n_encode_layers'],
         mask_inner=True,
         mask_logits=True,
@@ -185,10 +183,10 @@ def sample_many(inner_func, get_cost_func, input, batch_rep=1, iter_rep=1):
     veh_lists = []
     pis = []
     for i in range(iter_rep):
-        _log_p, _log_p_veh, pi, veh_list, tour = inner_func(input, )
+        _log_p, _log_p_veh, pi, veh_list, tour, time = inner_func(input, )
         #print('pi', pi.size())
 
-        cost, mask = get_cost_func(input, pi, veh_list, tour)
+        cost, mask = get_cost_func(input, pi, veh_list, tour, time)
         costs.append(cost.view(batch_rep, -1).t())  # [1, (num_samples, batch_rep)]
         veh_lists.append(veh_list.view(batch_rep, -1, veh_list.size(-1)).transpose(0, 1))  # [1, (num_samples, batch_rep, solu_len)]
         pis.append(pi.view(batch_rep, -1, pi.size(-1)).transpose(0, 1))   # [1, (num_samples, batch_rep, solu_len)]

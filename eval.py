@@ -15,7 +15,10 @@ from datetime import timedelta
 from utils.functions import parse_softmax_temperature
 import warnings
 
-# data/sc/100_tasks_sc.pkl --model outputs/hcvrp_100/run_20230106T201311/epoch-9.pt --decode_strategy sample --width 1280 --eval_batch_size 1
+# data/sc/1my_tasks_sc.pkl --model outputs/hcvrp_50/greedy_run_20230505T230846/epoch-49.pt --decode_strategy greedy --width 1 --eval_batch_size 1
+
+# data/sc/1my_tasks_sc.pkl --model outputs/hcvrp_20/run_20230618T213321/epoch-99.pt --decode_strategy greedy  --eval_batch_size 1
+
 
 mp = torch.multiprocessing.get_context('spawn')
 
@@ -191,8 +194,8 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument("datasets", nargs='+', help="Filename of the dataset(s) to evaluate")
-    parser.add_argument('--tasks_size', type=int, default=100, help="The size of the problem graph")
-    parser.add_argument('--workers_size', type=int, default=10, help="The size of the problem graph")
+    parser.add_argument('--tasks_size', type=int, default=2500, help="The size of the problem graph")
+    parser.add_argument('--workers_size', type=int, default=100, help="The size of the problem graph")
     parser.add_argument("-f", action='store_true', help="Set true to overwrite")
     parser.add_argument("-o", default=None, help="Name of the results file to write")
     parser.add_argument('--val_size', type=int, default=10000,

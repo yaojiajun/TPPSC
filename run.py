@@ -10,7 +10,7 @@ from tensorboard_logger import Logger as TbLogger
 
 from nets.critic_network import CriticNetwork
 from options import get_options
-from train import train_epoch, eval, get_inner_model
+from train import train_epoch, eval, validate, get_inner_model
 from reinforce_baselines import NoBaseline, ExponentialBaseline, CriticBaseline, RolloutBaseline, WarmupBaseline
 from nets.attention_model import AttentionModel
 from nets.pointer_network import PointerNetwork, CriticNetworkLSTM
@@ -18,7 +18,8 @@ from utils import torch_load_cpu, load_problem
 import warnings
 
 # from problems.vrp import CVRP
-from problems import TOTP
+from problems import TPSC
+from collections import OrderedDict
 
 def run(opts):
 
@@ -44,7 +45,7 @@ def run(opts):
 
     # Figure out what's the problem
     # problem = load_problem(opts.problem)
-    problem = TOTP()
+    problem = TPSC()
 
     # Load data from load_path
     # if u have run the model before, u can continue from resume path
@@ -66,7 +67,8 @@ def run(opts):
         opts.hidden_dim,
         opts.obj,
         problem,
-
+        tasks_size=opts.tasks_size,
+        workers_size=opts.workers_size,
         n_encode_layers=opts.n_encode_layers,
         mask_inner=True,
         mask_logits=True,
@@ -79,6 +81,7 @@ def run(opts):
     # multi-gpu
     if opts.use_cuda and torch.cuda.device_count() > 1:
         model = torch.nn.DataParallel(model)
+
 
     # Overwrite model parameters by parameters to load
     model_ = get_inner_model(model)
@@ -134,6 +137,7 @@ def run(opts):
 
     # Load optimizer state from trained model
     if 'optimizer' in load_data:
+        aa=load_data['optimizer']
         optimizer.load_state_dict(load_data['optimizer'])
         for state in optimizer.state.values():
             for k, v in state.items():
@@ -160,7 +164,7 @@ def run(opts):
         opts.epoch_start = epoch_resume + 1
 
     if opts.eval_only:
-            eval(model, val_dataset, opts)
+        validate(model, val_dataset, opts)
     else:
         for epoch in range(opts.epoch_start, opts.epoch_start + opts.n_epochs):
             train_epoch(
@@ -177,4 +181,8 @@ def run(opts):
 
 
 if __name__ == "__main__":
+    warnings.filterwarnings('ignore')
+    os.environ['KMP_DUPLICATE_LIB_OK']='True'
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
     run(get_options())
