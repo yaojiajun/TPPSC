@@ -7,8 +7,11 @@ Python>=3.8
 NumPy
 
 SciPy
+
 PyTorch>=1.7
+
 tqdm
+
 tensorboard_logger
 
 ## How to use the code:
