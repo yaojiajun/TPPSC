@@ -23,8 +23,8 @@ Training:
 Evaluation:
     The datasets for testing can be found inside the directory named 'data'. To evaluate a model, you can add the --eval-only flag to run.py, or use eval.py, which will additionally measure timing and save the results.
 
-Test data generation:
-    More test data with varying number of tasks and workers can be generated using the script generate_data_normal.py, generate_data_rand.py and generate_data_real.py.
+Data generation:
+    More test data with varying number of tasks and workers can be generated using the script generate_data_normal.py, generate_syn_data.py and generate_real_data.py.
 
 ##  Contact
 If you have any questions or concerns, please raise an issue or email: 201810102795@mail.scut.edu.cn
