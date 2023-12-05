@@ -279,48 +279,28 @@ class MultiHeadAttentionNew(nn.Module):
             param.data.uniform_(-stdv, stdv)
 
     def forward(self, q, out_source_attn, st_edge, h=None,): #d_q, out_source_attn,
-
         # h should be (batch_size, graph_size, input_dim)
         batch_size, graph_size, input_dim = q.size()
         # edg=edg
         hflat = q.contiguous().view(-1, input_dim)
-        hflat.shape
+
         # last dimension can be different for keys and values
         shp = (8, batch_size, graph_size, -1)
-        self.W_query.shape
+
         # Calculate queries, (n_heads, n_query, graph_size, key/val_size)
         Q = torch.matmul(hflat, self.W_query).view(shp)
         K = torch.matmul(hflat, self.W_key).view(shp)
         V = torch.matmul(hflat, self.W_val).view(shp)
         # edg=edg.view(shp)
         # Calculate compatibility (n_heads, bastch_size, n_query, graph_size)
-        st_edge.shape
-        Q.shape
-
-        # att=[]
-        # for i in range(graph_size):
-        #     aa=Q[:,:,i,:][:,:,None,:]
-        #     aa2=(edg[:,:,i][:,:,None]).expand(batch_size, graph_size, graph_size)
-        #     aa2.shape
-        #     bb=torch.matmul(aa2, K)
-        #     bb.shape
-        #     a=torch.matmul(aa, bb.transpose(2, 3))
-        #     att.append(a)
-        # compatibility=torch.stack(att,0).squeeze(3).permute(1, 2, 0, 3)
-        # compatibility.shape #8,2,51,51
 
         compatibility=(torch.matmul(Q, K.transpose(2, 3))+st_edge)*self.norm_factor
-
-        compatibility.shape
-
         compatibility = torch.cat((compatibility, out_source_attn), 0)
 
         attn_raw = compatibility.permute(1, 2, 3, 0)
-        attn_raw.shape
         attn = self.score_aggr(attn_raw).permute(3, 0, 1, 2)
 
         heads = torch.matmul(F.softmax(attn, dim=-1), V)
-
         out = torch.mm(
             heads.permute(1, 2, 0, 3).contiguous().view(-1, self.n_heads * self.val_dim),
             self.W_out.view(-1, self.embed_dim)
@@ -410,8 +390,6 @@ class FFandNormsubLayer(nn.Module):
         return self.Norm(out + input)
 
 
-
-
 class MultiHeadAttentionNewDyn(nn.Module):
     def __init__(
             self,
@@ -491,22 +469,17 @@ class MultiHeadAttentionNewDyn(nn.Module):
         K = torch.matmul(hflat, self.W_key).view(shp)
         V = torch.matmul(hflat, self.W_val).view(shp)
 
-        Q.shape
         att=torch.matmul(Q, K.transpose(3, 4))
-        att.shape
 
         # Calculate compatibility (n_heads, batch_size, n_query, graph_size)
         compatibility = self.norm_factor * (att + st_edge)
 
         out_source_attn1=out_source_attn[:,None,:,:,:].expand(-1,time,-1,-1,-1)
 
-        out_source_attn1.shape
         compatibility = torch.cat((compatibility, out_source_attn1), 0)
-        compatibility.shape
         attn_raw = compatibility.permute(1, 2, 3, 4, 0)
-        attn_raw.shape
         attn = self.score_aggr(attn_raw).permute(4, 0, 1, 2, 3)
-        attn.shape
+
         # Optionally apply mask to prevent attention
         # if mask is not None:
         #     mask = mask.view(1, batch_size, n_query, graph_size).expand_as(compatibility)
@@ -519,7 +492,7 @@ class MultiHeadAttentionNewDyn(nn.Module):
             heads.permute(1, 2, 3, 0, 4).contiguous().view(-1, self.n_heads * self.val_dim),
             self.W_out.view(-1, self.embed_dim)
         ).view(  n_time, batch_size, graph_size, self.embed_dim)
-        out.shape
+
         return out, out_source_attn , st_edge
 
 class MultiHeadEncoderDyn(nn.Module):

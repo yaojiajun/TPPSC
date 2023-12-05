@@ -1,1 +1,1 @@
-from problems.tpsc.problem_tpsc import TPSC
+from problems.tppsc.problem_tppsc import TPPSC

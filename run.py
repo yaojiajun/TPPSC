@@ -18,7 +18,7 @@ from utils import torch_load_cpu, load_problem
 import warnings
 
 # from problems.vrp import CVRP
-from problems import TPSC
+from problems import TPPSC
 from collections import OrderedDict
 
 def run(opts):
@@ -45,7 +45,7 @@ def run(opts):
 
     # Figure out what's the problem
     # problem = load_problem(opts.problem)
-    problem = TPSC()
+    problem = TPPSC()
 
     # Load data from load_path
     # if u have run the model before, u can continue from resume path

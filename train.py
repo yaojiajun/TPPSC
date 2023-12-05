@@ -34,7 +34,7 @@ def eval(model, dataset, opts):
     if opts.decode_strategy=='sample':
         cost = rollout1(model, dataset, opts)
     else:
-        cost = rollout1(model, dataset, opts)
+        cost = rollout(model, dataset, opts)
     avg_cost = cost.max()
 
     print('Validation overall avg_cost: {} +- {}'.format(
@@ -56,7 +56,7 @@ def rollout1(model, dataset, opts):
 
     for bat in tqdm(DataLoader(dataset, batch_size=opts.eval_batch_size), disable=opts.no_progress_bar):
         bat=move_to(bat, opts.device)
-        input = do_batch_rep(bat, 550)
+        input = do_batch_rep(bat, 500)
         aa=eval_model_bat(input)
         return aa
 

@@ -9,11 +9,11 @@ def get_options(args=None):
         description="Attention based model for solving the Travelling Salesman Problem with Reinforcement Learning")
 
     # Data
-    parser.add_argument('--problem', default='tpsc', help="The problem to solve")
-    parser.add_argument('--tasks_size', type=int, default=100, help="The size of the problem graph")
+    parser.add_argument('--problem', default='tppsc', help="The problem to solve")
+    parser.add_argument('--tasks_size', type=int, default=5, help="The size of the problem graph")
     parser.add_argument('--workers_size', type=int, default=5, help="The size of the problem graph")
-    parser.add_argument('--batch_size', type=int, default=500, help='Number of instances per batch during training')
-    parser.add_argument('--epoch_size', type=int, default=500000, help='Number of instances per epoch during training')
+    parser.add_argument('--batch_size', type=int, default=5, help='Number of instances per batch during training')
+    parser.add_argument('--epoch_size', type=int, default=5, help='Number of instances per epoch during training')
     parser.add_argument('--val_size', type=int, default=10,
                         help='Number of instances used for reporting validation performance')
     parser.add_argument('--val_dataset', type=str, default=None, help='Dataset file to use for validation')
@@ -22,7 +22,7 @@ def get_options(args=None):
     parser.add_argument('--depend_des_dataset', type=str, default="data/sc/tasks_depend_des_sc.pkl",
                         help='Dataset file to use for dependency')
 
-    parser.add_argument('--obj', default='min-sum')
+    parser.add_argument('--obj', default='max-sum')
 
     # Model
     parser.add_argument('--model', default='attention', help="Model, 'attention' (default) or 'pointer'")

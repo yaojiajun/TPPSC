@@ -77,7 +77,7 @@ class AttentionModel(nn.Module):
         self.n_encode_layers = n_encode_layers
         self.decode_type = None
         self.temp = 1.0
-        self.is_tpsc = problem.NAME == 'tpsc'
+        self.is_tppsc = problem.NAME == 'tppsc'
         self.feed_forward_hidden = 512
         self.normalization = normalization
 
@@ -92,7 +92,7 @@ class AttentionModel(nn.Module):
         self.shrink_size = shrink_size
 
         # Problem specific context parameters (placeholder and step context dimension)
-        if self.is_tpsc:
+        if self.is_tppsc:
             # Embedding of last node + remaining_capacity / remaining length / remaining prize to collect
             step_context_dim = embedding_dim +  1
             num_workers = workers_size
@@ -159,7 +159,6 @@ class AttentionModel(nn.Module):
         angle_rates = 1 / np.power(10000, (2 * (i // 2)) / np.float32(d_model))
         return pos * angle_rates
 
-
     def positional_encoding(self, n_position, emb_dim, mean_pooling=True):
 
         angle_rads = self.get_angles(np.arange(n_position)[:, np.newaxis],
@@ -176,7 +175,6 @@ class AttentionModel(nn.Module):
         #### ----
 
         return pattern
-
 
     def position_encoding(self, input, embedding_dim):
         t_loc=input['t_loc']
@@ -201,22 +199,18 @@ class AttentionModel(nn.Module):
         else:
             #embeddings, _ = self.embedder(self._init_embed(input))
             s_embed, d_embed, st_edge = self._init_embed(input)
-            d_embed.shape
+
             h_pos= self.position_encoding(input, self.embedding_dim)
-            h_pos.shape
             pos_em = self.pos_encoder(h_pos, st_edge)
-            # embeddings,aa = self.encoder(s_embed, d_embed, pos_em)[0]#  self.encoder(self._init_embed(input), self.pos_encoder(self.position_encoding(input, self.embedding_dim)))[0]
             static_embeddings= self.static_encoder(s_embed, pos_em, st_edge)[0]
             dyn_embeddings =(self.dyn_encoder(d_embed, pos_em, st_edge)[0])[-1]
-            dyn_embeddings.shape
             fusion_embeddings = torch.cat((static_embeddings, dyn_embeddings), dim=-1)
-            embeddings = self.fusion_layer(fusion_embeddings)
-            embeddings.shape
 
-        embeddings.shape
+            embeddings = self.fusion_layer(fusion_embeddings)
+
+
         _log_p, log_p_veh, pi, veh_list, tour, time = self._inner(input, embeddings)  # _log_p: [batch_size, graph_size+1, graph_size+1], pi:[batch_size, graph_size+1]
-        _log_p.shape#2-19-51
-        pi.shape#2-19
+
         cost, mask = self.problem.get_costs(input, self.obj, veh_list, tour, time)  # mask is None, cost:[batch_size]
 
         # Log likelyhood is calculated within the model since returning it per action does not work well with
@@ -285,24 +279,15 @@ class AttentionModel(nn.Module):
 
     def _init_embed(self, input):
 
-        if self.is_tpsc:
-            a = input['t_pay']
-            a.shape
+        if self.is_tppsc:
             batch_size, time, _, _ = input['t_pay'].size()
+
             zero = torch.zeros(batch_size, time, 1, device=input['t_pay'].device)[:, :, None, :]
             zero1 = torch.zeros(batch_size, 1, device=input['t_pay'].device)[:, :, None]
-            zero1.shape
-            # t_loc=input['t_loc']
-            # a=input['depot']
-            s_time = input['t_start'][:, :, :]
-            s_time.shape
-            d_time = input['t_deadline'][:, :, :]
+
             s_time = torch.cat((zero1, input['t_start'][:, :, :]), 1)
             d_time = torch.cat((zero1, input['t_deadline'][:, :, :]), 1)
-
             all_loc = torch.cat((input['depot'][:, None, :], input['t_loc']), 1)
-            all_loc.shape
-            # zero = torch.zeros(batch_size, time, 1, device='cuda')[:,:, None, : ]
             t_pay = torch.cat((zero, input['t_pay']), 2)
 
             t_start = input['t_start'][:, :, :] / input['t_start'][:, :, :].max()
@@ -311,54 +296,36 @@ class AttentionModel(nn.Module):
             distance_matrix = t_pay[:, 1, :, :] - 10 * (all_loc[:, :, None, :] - all_loc[:, None, :, :]).norm(p=2,
                                                                                                               dim=-1).to(
                 device=t_pay.device)
-            distance_matrix.shape
             distance_matrix = distance_matrix / distance_matrix.max()
             distance_matrix[distance_matrix < 0] = -1000
-            # edg_s[:, 0, :] = 0.001
-            # edg_s[:, :, 0] = 0.001
 
             time_cond1 = (s_time[:, :, None, :] - s_time[:, None, :, :]).to(device=t_pay.device).squeeze(-1)
-            time_cond1.shape
             time_cond2 = (d_time[:, :, None, :] - s_time[:, None, :, :]).to(device=t_pay.device).squeeze(-1)
-            time_cond2.shape
-            # time_cond3=(d_time[:, :, None, :] - d_time[:, None, :, :]).to(device=t_pay.device).squeeze(-1)
-            # time_cond3.shape
+            time_cond3=(d_time[:, :, None, :] - d_time[:, None, :, :]).to(device=t_pay.device).squeeze(-1)
             time_cond4 = (s_time[:, :, None, :] - d_time[:, None, :, :]).to(device=t_pay.device).squeeze(-1)
-            time_cond4.shape
 
             time_edge1 = torch.mul(time_cond1, time_cond2)
-            time_edge1.shape
             time_edge1[time_edge1 <= 0] = 1000
             time_edge1[time_edge1 != 1000] = -1000
 
             time_edge2 = torch.mul(time_cond1, time_cond4)
-            time_edge2.shape
             time_edge2[time_edge2 <= 0] = 1000
             time_edge2[time_edge2 != 1000] = -1000
+
             t_edge = time_edge1 + time_edge2
             t_edge[t_edge >= 0] = 1
             t_edge[:, :, 0] = 1
             t_edge[:, 0, :] = 1
+
             time_matrix = torch.abs(time_cond1)
-            t_edge.shape
             t_edg = t_edge * time_matrix
             t_edge = 1 - t_edge / t_edge.max()
             edge = t_edge + distance_matrix
             edge[edge < 0] = 0
-            edge = edge / edge.max()
-            edge[edge <= 0] = 0
-            # distance_matrix = ~distance_matrix
-            # time_matrix = torch.mul(distance_matrix, (1 / self.speed)).to(device=t_pay.device)  # 时间除以路程=1/速度
+            st_edge = edge / edge.max()
+            st_edge[st_edge <= 0] = 0
 
-            # demand=(input['demand']/input['demand'].max()).unsqueeze(-1)
-
-            # demand=input['demand'].unsqueeze(-1)
-
-            # demand = torch.tensor([(input['demand'] / input['w_capacity'][0:1, veh]).tolist() for veh in
-            #                        range(input['w_capacity'].size(-1))]).transpose(0, 1).transpose(1, 2).to(device=t_pay.device)
-            # demand.shape
-
-            aa = torch.cat(  # [batch_size, graph_size+1, embed_dim]
+            s_embed = torch.cat(  # [batch_size, graph_size+1, embed_dim]
                 (
                     self.init_embed_depot(input['depot'])[:, None, :],
                     self.init_static_embed(torch.cat((  # [batch_size, graph_size, embed_dim]
@@ -371,13 +338,11 @@ class AttentionModel(nn.Module):
                 ),
                 1
             )
-            aa.shape
 
             t_pay = t_pay / t_pay.max()
-            aa1 = self.init_dynamic_embed(t_pay).permute(1, 0, 2, 3)
-            aa1.shape
-            # aa2=relation
-            return aa, aa1, edge
+            d_embed = self.init_dynamic_embed(t_pay).permute(1, 0, 2, 3)
+
+            return s_embed, d_embed, st_edge
 
     def select_veh(self, input, state, sequences, embeddings, obj, veh_list, tour):
         current_node = state.get_current_node()  # [batch_size]
@@ -386,7 +351,6 @@ class AttentionModel(nn.Module):
         batch_size, graph_size, embed_dim = embeddings.size()
         _, num_veh = current_node.size()
 
-        # SPEED = (state.speed[:, 0:num_veh, :]).transpose(0, 1)
         SPEED = (state.speed[:, 0:num_veh, :])
         workers_score = (state.workers_score[:, 0:num_veh, :].clone())
         worker_decision_time = (state.workers_decision_time[:, 0:num_veh, :].clone())
@@ -420,20 +384,16 @@ class AttentionModel(nn.Module):
         else:
 
             current_loc = (state.cur_coord[:, 0:num_veh, :].clone())
-            current_loc.shape
-            aa=current_loc[:, :]
-            aa.shape
-            workers_score.shape
             mean_tour = torch.zeros([batch_size, num_veh * embed_dim]).float().to(device=current_loc.device)
             veh_context=torch.cat(((tour_dis[:, :].unsqueeze(-1) / SPEED[:, :]), current_loc[:, :],w_score[:, :],w_start[:, :],w_deadline[:, :]), -1).view([batch_size, -1])
-        veh_context.shape
+
         veh_context = self.FF_veh(veh_context)
         tour_context = self.FF_tour(mean_tour)
         context = torch.cat((veh_context, tour_context), -1).view(batch_size, self.embedding_dim * 2)
 
         log = self.select_embed(context)
         log = torch.tanh(log) * self.tanh_clipping
-        log.shape
+
         aa = torch.count_nonzero(working_workers[:, :].squeeze(1), dim=1).reshape(-1, 1)
         for i in range(batch_size):
             if aa[i] == num_veh:
@@ -441,6 +401,7 @@ class AttentionModel(nn.Module):
 
         log[working_workers] = -math.inf
         log_veh = F.log_softmax(log, dim=1)
+
         if self.decode_type == "greedy":
             veh = torch.max(F.softmax(log, dim=1), dim=1)[1]
         elif self.decode_type == "sampling":
@@ -466,7 +427,6 @@ class AttentionModel(nn.Module):
 
         # Perform decoding steps
         i = 0
-        #veh = torch.LongTensor(batch_size).zero_()
         veh_list = []
         while not (self.shrink_size is None and not (state.all_finished() == 0 )):
             veh, log_p_veh = self.select_veh(input, state, sequences, embeddings, self.obj, veh_list, tour)  # [batch_size, 1]
@@ -487,7 +447,7 @@ class AttentionModel(nn.Module):
             # Select the indices of the next nodes in the sequences, result (batch_size) long
 
             selected = self._select_node(log_p.exp()[:, 0, :], mask[:, 0, :], state, veh, sequences)  # Squeeze out steps dimension
-
+            print(selected)
             state = state.update(selected, veh)
 
             # Now make log_p, selected desired output size by 'unshrinking'
@@ -637,7 +597,7 @@ class AttentionModel(nn.Module):
 
         w_c = [torch.tensor(state.capacity)[k, veh[k]] for k in range(veh.size(-1))]
         w_c = torch.stack(w_c, -1)[None, :]
-        aa=current_node[torch.arange(batch_size), veh]
+
         return torch.cat(  # [batch_size, num_veh, embed_dim+1]
             (
                 torch.gather(

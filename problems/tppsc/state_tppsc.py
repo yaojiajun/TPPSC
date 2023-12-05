@@ -5,7 +5,7 @@ import numpy as np
 import copy
 
 
-class StateTPSC(NamedTuple):
+class StateTPPSC(NamedTuple):
     # Fixed input
     coords: torch.Tensor  # Depot + loc, [batch_size, graph_size+1, 2]
     demand: torch.Tensor
@@ -34,8 +34,6 @@ class StateTPSC(NamedTuple):
     cur_coord: torch.Tensor
     i: torch.Tensor  # Keeps track of step
 
-    #VEHICLE_CAPACITY = [20., 25., 30., 35., 40.]  # Hardcoded
-
     @property
     def visited(self):
         if self.visited_.dtype == torch.uint8:
@@ -59,7 +57,7 @@ class StateTPSC(NamedTuple):
                 lengths=self.lengths[key],
                 cur_coord=self.cur_coord[key],
             )
-        return super(StateTPSC, self).__getitem__(key)
+        return super(StateTPPSC, self).__getitem__(key)
 
 
     @staticmethod
@@ -68,19 +66,18 @@ class StateTPSC(NamedTuple):
         depot = input['depot']
         loc = input['t_loc']
         demand = input['demand']
+
         pay = input['t_pay'].squeeze(-1)
-        pay.shape
         tasks_start_time=input['t_start']
         tasks_deadline_time=input['t_deadline']
-        #workers_start_time= input['w_start']
+
         workers_deadline_time = input['w_deadline']
         workers_decision_time=input['w_start']
-        workers_score = input['w_score']
         _, w_num, _ = input['w_loc'].size()
         cur_coord1 = input['w_loc']
 
         batch_size, n_loc, _ = loc.size()  # n_loc = graph_size
-        return StateTPSC(
+        return StateTPPSC(
             coords=torch.cat((depot[:, None, :], loc), -2),  # [batch_size, graph_size, 2]]
             demand=torch.cat((torch.zeros(batch_size, 1, device=loc.device), demand), 1),
             pay=pay,  #torch.cat((torch.zeros(batch_size, 1, device=loc.device), pay), 1),
@@ -148,8 +145,6 @@ class StateTPSC(NamedTuple):
         time = ((cur_coord - self.cur_coord).norm(2, 2) / self.speed[torch.arange(batch_size), veh]).unsqueeze(-1)
 
         workers_done = self.workers_done
-        workers_done.shape
-
         for i in range (len(veh)):
             if time[i, veh[i]]==0:
                 time[i, veh[i]] = 1000
@@ -185,8 +180,6 @@ class StateTPSC(NamedTuple):
         workers_done = self.workers_done
         workers_done[is_worker_done] = 1
 
-
-
         if self.visited_.dtype == torch.uint8:
             visited_ = self.visited_.scatter(-1, prev_a[torch.arange(batch_size), veh][:, None, None].expand_as(
                 self.visited_[:, :, 0:1]), 1)
@@ -202,15 +195,14 @@ class StateTPSC(NamedTuple):
 
     def all_finished(self):
         batch_size, _, len = self.visited_.size()
-        aa = torch.count_nonzero(self.visited_[:, :, 1:].squeeze(1), dim=1).reshape(-1, 1).squeeze(-1)
-        bb = torch.count_nonzero(self.workers_done.squeeze(1), dim=1).reshape(-1, 1).squeeze(-1)
         len1 = self.workers_done.size(-1)
         flag = torch.zeros(batch_size)
-        aa = aa - (len - 1)
-        bb = bb - len1
-        valid_index = (aa - (len - 1) == 0).nonzero()
-        valid_index1 = (bb == 0).nonzero()
-        # aa = time[valid_index, veh[valid_index]]
+
+        done_taskNum = torch.count_nonzero(self.visited_[:, :, 1:].squeeze(1), dim=1).reshape(-1, 1).squeeze(-1)
+        done_workerNum = torch.count_nonzero(self.workers_done.squeeze(1), dim=1).reshape(-1, 1).squeeze(-1)
+
+        valid_index = (done_taskNum - (len - 1)== 0).nonzero()
+        valid_index1 = (done_workerNum - len1 == 0).nonzero()
         if torch.isnan(valid_index).all() == False:
             flag[valid_index] = 1
         if torch.isnan(valid_index1).all() == False:
@@ -241,20 +233,15 @@ class StateTPSC(NamedTuple):
         else:
             visited_loc = self.visited_[:, 1:][:, None, :]  # [batch_size, 1, n_loc]
 
-        # zero = torch.zeros(batch_size, 1, task_size-1, device='cuda')
-        # all_pay=torch.cat((zero, self.pay), 1)
         cur_time=self.workers_decision_time[torch.arange(batch_size), veh]
         distance_matrix = (self.cur_coord[:, :, None, :] - self.coords[:, None, 1:, :]).norm(p=2, dim=-1).to(device=visited_loc.device)
-
         time_matrix = torch.mul(distance_matrix, (1 / self.speed)).to(device=visited_loc.device)  # 时间除以路程=1/速度
 
         cur_time=(cur_time+time_matrix[torch.arange(batch_size), veh])-self.tasks_start_time.squeeze(-1)
         finnal_time = self.tasks_deadline_time.max().int()
-        # cur_time=((cur_time-self.tasks_start_time.squeeze(-1)))
         cur_time64 = torch.tensor(cur_time+1, dtype=torch.int64)
         cur_time64 = torch.where(cur_time64 < 0, 0, cur_time64)
         cur_time64 = torch.where(cur_time64 > int(finnal_time-1), int(finnal_time-1), cur_time64)
-        self.pay.shape
         bb3=self.pay.gather(1, (cur_time64[:, None, :]).expand(cur_time.size(0), 1, self.pay.size(-1))).squeeze(1)
 
         cur_score = self.workers_score[torch.arange(batch_size), veh]
@@ -271,7 +258,6 @@ class StateTPSC(NamedTuple):
                        | exceeds_task_deadline | arrived_before_task
         # Nodes that cannot be visited are already visited or too much demand to be served now
 
-
         exceeds_cap = (self.demand[self.ids, 1:] + (self.used_capacity[torch.arange(batch_size), veh].unsqueeze(-1))[
             ..., None].expand_as(self.demand[self.ids, 1:]) >
                        (self.capacity[torch.arange(batch_size), veh]).unsqueeze(-1)[..., None].expand_as(
@@ -281,11 +267,9 @@ class StateTPSC(NamedTuple):
 
         # Cannot visit the depot if just visited and still unserved nodes
 
-
         mask_depot = torch.tensor(torch.ones((mask_loc.size()[0], 1)).clone().detach(), dtype=torch.bool,
                                   device=mask_loc.device)  # [batch_size, 1]
 
-        mask_loc[0, :, 1] = True
         aa = mask_loc.to(torch.float)
         aa = torch.count_nonzero(aa[:, :, :].squeeze(1), dim=1).reshape(-1, 1)
         for k in range(batch_size):
@@ -296,8 +280,6 @@ class StateTPSC(NamedTuple):
                 else:
                     mask_depot [k, 0] = False
 
-        # mask_depot = (
-        #             (mask_loc == 0).int().sum(-1) > 0)
         return torch.cat((mask_depot[:, :, None], mask_loc), -1)  # [batch_size, 1, graph_size]
 
 
