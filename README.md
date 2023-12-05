@@ -3,7 +3,9 @@ A Transformer-based reinforcement learning framework for learning to solve task 
 
 ##  Dependencies
 Python>=3.8
+
 NumPy
+
 SciPy
 PyTorch>=1.7
 tqdm
