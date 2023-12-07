@@ -14,7 +14,6 @@ from utils.functions import sample_many
 import copy
 import random
 
-
 class mySequential(nn.Sequential):
     def forward(self, *inputs):
         for module in self._modules.values():
