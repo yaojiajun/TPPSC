@@ -12,7 +12,7 @@ from nets.attention_model import set_decode_type
 from utils.log_utils import log_values
 from utils import move_to
 
-
+ 
 def get_inner_model(model):
     return model.module if isinstance(model, DataParallel) else model
 
@@ -190,7 +190,7 @@ def train_epoch(model, optimizer, baseline, lr_scheduler, epoch, val_dataset, pr
 
     with open('test.txt', 'a', encoding='UTF-8') as f:
         f.write(str(avg_reward))
-        f.write('\n')  # 换行
+        f.write('\n') 
 
     if not opts.no_tensorboard:
         tb_logger.log_value('val_avg_reward', avg_reward, step)
