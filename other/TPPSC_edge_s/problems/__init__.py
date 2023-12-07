@@ -1,0 +1,1 @@
+from problems.tppsc.problem_tppsc import TPPSC
