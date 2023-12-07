@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="9bb7bad9-31bc-4df7-ae31-0545717d3e3e" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="JupyterTrust" id="a0d24ec3-12d6-4500-ad99-75ca8c25cb0c" />
+  <component name="ProjectId" id="2X1cKQ2lFaRSvRzfEdFPpvhgFFr" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="9bb7bad9-31bc-4df7-ae31-0545717d3e3e" name="Default Changelist" comment="" />
+      <created>1697799961545</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1697799961545</updated>
+      <workItem from="1697799962628" duration="34000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="555" y="170" key="FileChooserDialogImpl" timestamp="1697799990534">
+      <screen x="0" y="0" width="1549" height="831" />
+    </state>
+    <state x="555" y="170" key="FileChooserDialogImpl/0.0.1549.831@0.0.1549.831" timestamp="1697799990534" />
+  </component>
+</project>
