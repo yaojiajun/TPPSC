@@ -4,7 +4,7 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 import math
 import numpy as np
-
+ 
 
 class Encoder(nn.Module):
     """Maps a graph represented as an input sequence
