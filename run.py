@@ -17,7 +17,6 @@ from nets.pointer_network import PointerNetwork, CriticNetworkLSTM
 from utils import torch_load_cpu, load_problem
 import warnings
 
-# from problems.vrp import CVRP
 from problems import TPPSC
 from collections import OrderedDict
 
