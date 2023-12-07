@@ -11,7 +11,6 @@ from einops import rearrange
 ti.init()
 
 
-
 class SkipConnection(nn.Module):
 
     def __init__(self, module):
