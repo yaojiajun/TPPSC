@@ -6,7 +6,7 @@ import pandas as pd
 import scipy.stats as stats
 from utils.data_utils import save_dataset
 
-
+ 
 def truncated_normal(graph_size, sigma):
     mu = 0.5
     lower, upper = 0, 1
