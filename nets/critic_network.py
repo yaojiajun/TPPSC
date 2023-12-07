@@ -1,6 +1,6 @@
 from torch import nn
 from nets.graph_encoder import GraphAttentionEncoder
-
+ 
 
 class CriticNetwork(nn.Module):
 
