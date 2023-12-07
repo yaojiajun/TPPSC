@@ -4,7 +4,7 @@ import torch
 import numpy as np
 from utils.data_utils import save_dataset
 
-
+ 
 def generate_mrta_data():
     with open('data/sc/es_data_100.txt', encoding='utf-8') as file:
         data = []
