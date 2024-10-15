@@ -1,4 +1,4 @@
-#  Task Planning in Preference-aware Spatial Crowdsourcing with Transformer based Reinforcement Learning
+#  A Reinforced Spatio-temporal Learning Framework for Multi-Task Allocation in Spatial Crowdsourcing
 
 This repository contains code for implementing a Transformer-based reinforcement learning framework for learning to solve task planning (TOTP) in spatial crowdsourcing with bilateral preferences. Training with REINFORCE with greedy rollout baseline. Environment: The TPPSC environment can be initialized using the TPPSC class in problems/tppsc/problem_tppsc.py. All state space variables and functions required to update the state space are implemented using the StateTPPSC class in problems/tppsc/state_tppsc.py. training.py implements the REINFORCE algorithm. 
 
