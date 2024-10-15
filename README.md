@@ -1,6 +1,6 @@
 #  A Reinforced Spatio-temporal Learning Framework for Multi-Task Allocation in Spatial Crowdsourcing
 
-This repository contains code for implementing a Transformer-based reinforcement learning framework for learning to solve task planning (TOTP) in spatial crowdsourcing with bilateral preferences. Training with REINFORCE with greedy rollout baseline. Environment: The TPPSC environment can be initialized using the TPPSC class in problems/tppsc/problem_tppsc.py. All state space variables and functions required to update the state space are implemented using the StateTPPSC class in problems/tppsc/state_tppsc.py. training.py implements the REINFORCE algorithm. 
+This repository contains code for implementing a reinforced spatio-temporal learning framework for Multi-Task Allocation in Spatial Crowdsourcing (MTASC). Training with REINFORCE with greedy rollout baseline. Environment: The MTASC environment can be initialized using the TPPSC class in problems/tppsc/problem_tppsc.py. All state space variables and functions required to update the state space are implemented using the StateTPPSC class in problems/tppsc/state_tppsc.py. training.py implements the REINFORCE algorithm. 
 
 ##  Dependencies
 Python>=3.8  
@@ -23,7 +23,7 @@ tensorboard_logger
     More test data with varying number of tasks and workers can be generated using the script generate_data_normal.py, generate_syn_data.py and generate_real_data.py.
 
 ##  Contact
-If you have any questions or concerns, please raise an issue or email: 201810102795@mail.scut.edu.cn
+If you have any questions or concerns, please raise an issue or email: 
 
 This repository includes adaptions of the following repositories as baselines:  
 https://github.com/wouterkool/attention-learn-to-route  
