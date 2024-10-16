@@ -1,7 +1,7 @@
 #  A Reinforced Spatio-temporal Learning Framework for Multi-Task Allocation in Spatial Crowdsourcing
 
 This repository contains code for implementing a reinforced spatio-temporal learning framework for Multi-Task Allocation in Spatial Crowdsourcing (MTASC). Training with REINFORCE with greedy rollout baseline. Environment: The MTASC environment can be initialized using the MTASC class in problems/mtasc/problem_mtasc.py. All state space variables and functions required to update the state space are implemented using the StateTPPSC class in problems/mtasc/state_mtasc.py. training.py implements the REINFORCE algorithm. 
-## Usage
+
 
 ##  Dependencies
 Python>=3.8  
