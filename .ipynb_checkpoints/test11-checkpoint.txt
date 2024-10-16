@@ -1,0 +1,4 @@
+tensor(2213.3799) tensor(123.1152)
+tensor(2139.3606) tensor(130.5218)
+tensor(2244.3235) tensor(160.8083)
+tensor(2365.5535) tensor(133.0873)
